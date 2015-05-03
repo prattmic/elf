@@ -4,6 +4,8 @@ use std::io;
 use std::io::Read;
 use std::path::Path;
 
+const ELF_MAGIC: u32 = 0x464c457f;  // .ELF
+
 pub struct Elf {
     file: File,
 }
@@ -13,7 +15,7 @@ impl Elf {
         let mut f = try!(File::open(filename));
         let first_word = try!(first_word(&mut f));
 
-        if first_word != 0x464c457f {  // .ELF
+        if first_word != ELF_MAGIC {
             return Err(io::Error::new(io::ErrorKind::Other, "Not an ELF file"));
         }
 
@@ -21,7 +23,7 @@ impl Elf {
     }
 }
 
-pub fn first_word(file: &mut File) -> io::Result<u32> {
+fn first_word(file: &mut File) -> io::Result<u32> {
     let mut buf: [u8; 4] = [0, 0, 0, 0];
 
     // Read the first 4 bytes
@@ -39,7 +41,6 @@ pub fn first_word(file: &mut File) -> io::Result<u32> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::fs::File;
 
     // Borrowed from https://github.com/rust-lang/rust/blob/master/src/libstd/fs.rs
     macro_rules! check { ($e:expr) => (
@@ -48,14 +49,6 @@ mod test {
             Err(e) => panic!("{} failed with: {}", stringify!($e), e),
         }
     ) }
-
-    #[test]
-    fn detect_elf() {
-        let mut f = check!(File::open("/proc/self/exe"));
-        let word = check!(first_word(&mut f));
-
-        assert_eq!(0x464c457f, word) // .ELF
-    }
 
     #[test]
     fn open_elf() {
