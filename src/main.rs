@@ -1,9 +1,14 @@
 extern crate elf;
 
 fn main() {
-    let elf = elf::Elf::open("/proc/self/exe");
-    match elf {
-        Ok(_) => println!("Successfully opened ELF file!"),
-        Err(e) => println!("Failed to open ELF file: {}", e),
-    }
+    let elf = match elf::Elf::open("/proc/self/exe") {
+        Ok(e) => e,
+        Err(e) => panic!("Failed to open ELF file: {}", e),
+    };
+
+    println!("ELF Version: {}", elf.version());
+    println!("ELF Class: {:?}", elf.class());
+    println!("ELF Endianness: {:?}", elf.endianness());
+    println!("ELF OS ABI: {:?}", elf.osabi());
+    println!("ELF ABI Version: {}", elf.abi_version());
 }
