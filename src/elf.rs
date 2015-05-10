@@ -24,7 +24,7 @@ impl Elf {
 }
 
 fn first_word(file: &mut File) -> io::Result<u32> {
-    let mut buf: [u8; 4] = [0, 0, 0, 0];
+    let mut buf = [0u8; 4];
 
     // Read the first 4 bytes
     let size = try!(file.read(&mut buf));
@@ -40,15 +40,10 @@ fn first_word(file: &mut File) -> io::Result<u32> {
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    #[macro_use]
+    mod macros;
 
-    // Borrowed from https://github.com/rust-lang/rust/blob/master/src/libstd/fs.rs
-    macro_rules! check { ($e:expr) => (
-        match $e {
-            Ok(t) => t,
-            Err(e) => panic!("{} failed with: {}", stringify!($e), e),
-        }
-    ) }
+    use super::*;
 
     #[test]
     fn open_elf() {
